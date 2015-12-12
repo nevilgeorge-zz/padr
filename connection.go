@@ -22,7 +22,9 @@ type connection struct {
 func (c *connection) reader() {
   for {
     _, message, err := c.ws.ReadMessage()
+    fmt.Println(string(message))
     if err != nil {
+      fmt.Println(err)
       fmt.Println("Reading from connection failed.")
       break
     }
