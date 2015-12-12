@@ -18,9 +18,12 @@ func homeHandler(res http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-  indexTempl = template.Must(template.ParseFiles(filepath.Join(assets, "index.html")))
+  indexTempl = template.Must(template.ParseFiles(filepath.Join(assets, "ws.html")))
   h := newHub()
   go h.run()
+
+  // serve static files at /static/
+  http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./client"))))
 
   http.HandleFunc("/", homeHandler)
   http.Handle("/ws", wsHandler{h: h})
