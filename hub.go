@@ -21,7 +21,7 @@ func newHub() *hub {
     connections: make(map[*connection]bool),
     broadcast: make(chan []byte),
     register: make(chan *connection),
-    unregister: make(chan *connection)
+    unregister: make(chan *connection),
   }
 
   return &hub

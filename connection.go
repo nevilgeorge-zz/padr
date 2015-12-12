@@ -56,12 +56,14 @@ func (wsh wsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     return
   }
 
+  fmt.Println("Adding new connection")
   c := &connection{
     send: make(chan []byte, 256),
     ws: ws,
-    h: wsh.h
+    h: wsh.h,
   }
   c.h.register <- c
+
   defer func() {
     c.h.unregister <- c
   }()
