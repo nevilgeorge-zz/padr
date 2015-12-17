@@ -16,19 +16,31 @@ type connection struct {
 
   // Hub connected to
   h *hub
+
+  // Assigned id
+  id int
+}
+
+type message struct {
+  // Text of string being sent
+  text []byte
+
+  // Connection that is sending the message
+  sender *connection
 }
 
 // reader method of connection type
 func (c *connection) reader() {
   for {
-    _, message, err := c.ws.ReadMessage()
-    fmt.Println(string(message))
+    _, msg, err := c.ws.ReadMessage()
+    m := &message{text: msg, sender: c}
+    fmt.Println(m.sender.id)
     if err != nil {
       fmt.Println(err)
       fmt.Println("Reading from connection failed.")
       break
     }
-    c.h.broadcast <- message
+    c.h.broadcast <- m.text
   }
   c.ws.Close()
 }
@@ -63,6 +75,7 @@ func (wsh wsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     send: make(chan []byte, 256),
     ws: ws,
     h: wsh.h,
+    id: -1,
   }
   c.h.register <- c
 
