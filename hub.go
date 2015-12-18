@@ -6,7 +6,7 @@ type hub struct {
   connections map[*connection]bool
 
   // Inbound messages from connections
-  broadcast chan []byte
+  broadcast chan *message
 
   // Register requests from the connections
   register chan *connection
@@ -22,7 +22,7 @@ type hub struct {
 func newHub() *hub {
   hub := hub{
     connections: make(map[*connection]bool),
-    broadcast: make(chan []byte),
+    broadcast: make(chan *message),
     register: make(chan *connection),
     unregister: make(chan *connection),
     connection_ids: make([]int, 0),
@@ -48,11 +48,8 @@ func (h *hub) run() {
 
     case m := <-h.broadcast:
       for c := range h.connections {
-        select {
-        case c.send <- m:
-        default:
-          delete(h.connections, c)
-          close(c.send)
+        if c.id != m.sender.id {
+          c.send <- m.text
         }
       }
     }

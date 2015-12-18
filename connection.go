@@ -33,14 +33,15 @@ type message struct {
 func (c *connection) reader() {
   for {
     _, msg, err := c.ws.ReadMessage()
-    m := &message{text: msg, sender: c}
-    fmt.Println(m.sender.id)
+
+    new_message := &message{text: msg, sender: c}
+
     if err != nil {
       fmt.Println(err)
       fmt.Println("Reading from connection failed.")
       break
     }
-    c.h.broadcast <- m.text
+    c.h.broadcast <- new_message
   }
   c.ws.Close()
 }
