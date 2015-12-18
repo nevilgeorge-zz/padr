@@ -5,7 +5,7 @@ $(function() {
 
     if (window['WebSocket']) {
       conn = new WebSocket('ws://localhost:8080/ws');
-      console.log('New websocket!');
+      console.log('Connected to websocket!');
     } else {
       alert('Your browser does not support WebSockets.');
     }
@@ -19,17 +19,16 @@ $(function() {
 
     var editorDiv = $('.editable');
     $('.editable').on('input', function() {
-      var text = editorDiv.text();
+      var html = editorDiv.html();
       if (typeof conn !== 'undefined' && text !== '') {
-        console.log(text);
-        conn.send(text);
+        conn.send(html);
       }
       return false;
     });
 
     if (typeof conn !== 'undefined') {
       conn.onmessage = function(msg) {
-        $('.editable').text(msg.data);
+        $('.editable').html($.parseHTML(msg.data));
       };
     }
   });
