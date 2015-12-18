@@ -15,7 +15,7 @@ type hub struct {
   unregister chan *connection
 
   // list of assigned ids
-  connection_ids []int
+  connectionIds []int
 
   // map that holds state for each session
   state map[int][]byte
@@ -28,7 +28,7 @@ func newHub() *hub {
     broadcast: make(chan *message),
     register: make(chan *connection),
     unregister: make(chan *connection),
-    connection_ids: make([]int, 0),
+    connectionIds: make([]int, 0),
     state: make(map[int][]byte),
   }
 
@@ -41,18 +41,18 @@ func (h *hub) run() {
     select {
     case c := <-h.register:
       h.connections[c] = true
-      c.id = h.get_next_id()
-      c.send <- h.state[c.session_id]
+      c.id = h.getNextId()
+      c.send <- h.state[c.sessionId]
 
     case c := <-h.unregister:
       if _, ok := h.connections[c]; ok {
-        h.delete_id(c.id)
+        h.deleteId(c.id)
         delete(h.connections, c)
         close(c.send)
       }
 
     case m := <-h.broadcast:
-      h.update_state(m.sender.session_id, m.text)
+      h.updateState(m.sender.sessionId, m.text)
       for c := range h.connections {
         if c.id != m.sender.id {
           c.send <- m.text
@@ -63,30 +63,30 @@ func (h *hub) run() {
 }
 
 // function to allocate new connection id
-func (h *hub) get_next_id() int {
+func (h *hub) getNextId() int {
 
   ids := make(map[int]bool)
 
-  for i := 0; i < len(h.connection_ids); i++ {
-    ids[h.connection_ids[i]] = true
+  for i := 0; i < len(h.connectionIds); i++ {
+    ids[h.connectionIds[i]] = true
   }
 
-  for i := 0; i < len(h.connection_ids); i++ {
+  for i := 0; i < len(h.connectionIds); i++ {
     if ids[i + 1] == false {
       return i + 1
     }
   }
 
-  h.connection_ids = append(h.connection_ids, len(h.connection_ids) + 1)
-  return h.connection_ids[len(h.connection_ids) - 1]
+  h.connectionIds = append(h.connectionIds, len(h.connectionIds) + 1)
+  return h.connectionIds[len(h.connectionIds) - 1]
 }
 
 // function to deallocate connection_id
-func (h *hub) delete_id(id int) {
+func (h *hub) deleteId(id int) {
 
   index := -1
   // find index of id
-  for i, value := range h.connection_ids {
+  for i, value := range h.connectionIds {
     if value == id {
       index = i
     }
@@ -96,9 +96,9 @@ func (h *hub) delete_id(id int) {
     return
   }
 
-  h.connection_ids = append(h.connection_ids[:index], h.connection_ids[index + 1:]...)
+  h.connectionIds = append(h.connectionIds[:index], h.connectionIds[index + 1:]...)
 }
 
-func (h *hub) update_state(session_id int, new_state []byte) {
-  h.state[session_id] = new_state
+func (h *hub) updateState(sessionId int, newState[]byte) {
+  h.state[sessionId] = newState
 }

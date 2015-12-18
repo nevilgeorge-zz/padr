@@ -4,6 +4,7 @@ package main
 import (
   "fmt"
   "log"
+  "math/rand"
   "net/http"
   "path/filepath"
   "text/template"
@@ -19,6 +20,7 @@ func homeHandler(res http.ResponseWriter, req *http.Request) {
 
 func main() {
   indexTempl = template.Must(template.ParseFiles(filepath.Join(assets, "ws.html")))
+  fmt.Println(generateShortCode(6))
   h := newHub()
   go h.run()
 
@@ -32,4 +34,15 @@ func main() {
     log.Fatal("ListenAndServe error:", err)
   }
   fmt.Println("Listening for connections on port ", port)
+}
+
+func generateShortCode(length int) string {
+  const possibleBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+  code := make([]byte, length)
+  for i := 0; i < length; i++ {
+    code[i] = possibleBytes[rand.Intn(len(possibleBytes))]
+  }
+
+  return string(code)
 }

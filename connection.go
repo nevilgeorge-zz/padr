@@ -21,7 +21,7 @@ type connection struct {
   id int
 
   // session id
-  session_id int
+  sessionId int
 }
 
 type message struct {
@@ -80,7 +80,7 @@ func (wsh wsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     ws: ws,
     h: wsh.h,
     id: -1,
-    session_id: 1,
+    sessionId: 1,
   }
   c.h.register <- c
 
