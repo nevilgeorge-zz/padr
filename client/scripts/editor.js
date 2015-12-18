@@ -4,7 +4,8 @@ $(function() {
     var conn;
 
     if (window['WebSocket']) {
-      conn = new WebSocket('ws://localhost:8080/ws');
+      var domain = document.domain;
+      conn = new WebSocket('ws://' + domain + ':8080/ws');
       console.log('Connected to websocket!');
     } else {
       alert('Your browser does not support WebSockets.');
