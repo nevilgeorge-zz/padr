@@ -20,7 +20,7 @@ $(function() {
     var editorDiv = $('.editable');
     $('.editable').on('input', function() {
       var html = editorDiv.html();
-      if (typeof conn !== 'undefined' && text !== '') {
+      if (typeof conn !== 'undefined' && html !== '') {
         conn.send(html);
       }
       return false;

@@ -16,6 +16,9 @@ type hub struct {
 
   // list of assigned ids
   connection_ids []int
+
+  // map that holds state for each session
+  state map[int][]byte
 }
 
 // constructor for hub struct
@@ -26,6 +29,7 @@ func newHub() *hub {
     register: make(chan *connection),
     unregister: make(chan *connection),
     connection_ids: make([]int, 0),
+    state: make(map[int][]byte),
   }
 
   return &hub
@@ -38,6 +42,7 @@ func (h *hub) run() {
     case c := <-h.register:
       h.connections[c] = true
       c.id = h.get_next_id()
+      c.send <- h.state[c.session_id]
 
     case c := <-h.unregister:
       if _, ok := h.connections[c]; ok {
@@ -47,6 +52,7 @@ func (h *hub) run() {
       }
 
     case m := <-h.broadcast:
+      h.update_state(m.sender.session_id, m.text)
       for c := range h.connections {
         if c.id != m.sender.id {
           c.send <- m.text
@@ -91,4 +97,8 @@ func (h *hub) delete_id(id int) {
   }
 
   h.connection_ids = append(h.connection_ids[:index], h.connection_ids[index + 1:]...)
+}
+
+func (h *hub) update_state(session_id int, new_state []byte) {
+  h.state[session_id] = new_state
 }

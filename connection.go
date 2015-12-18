@@ -19,6 +19,9 @@ type connection struct {
 
   // Assigned id
   id int
+
+  // session id
+  session_id int
 }
 
 type message struct {
@@ -77,6 +80,7 @@ func (wsh wsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     ws: ws,
     h: wsh.h,
     id: -1,
+    session_id: 1,
   }
   c.h.register <- c
 
