@@ -1,18 +1,18 @@
 // hub.go
 package main
 
-type hub struct {
+type Hub struct {
   // Registered connections
-  connections map[*connection]bool
+  connections map[*Connection]bool
 
   // Inbound messages from connections
-  broadcast chan *message
+  broadcast chan *Message
 
   // Register requests from the connections
-  register chan *connection
+  register chan *Connection
 
   // Unregister requests from the connections
-  unregister chan *connection
+  unregister chan *Connection
 
   // list of assigned ids
   connectionIds []int
@@ -22,12 +22,12 @@ type hub struct {
 }
 
 // constructor for hub struct
-func newHub() *hub {
-  hub := hub{
-    connections: make(map[*connection]bool),
-    broadcast: make(chan *message),
-    register: make(chan *connection),
-    unregister: make(chan *connection),
+func newHub() *Hub {
+  hub := Hub{
+    connections: make(map[*Connection]bool),
+    broadcast: make(chan *Message),
+    register: make(chan *Connection),
+    unregister: make(chan *Connection),
     connectionIds: make([]int, 0),
     state: make(map[int][]byte),
   }
@@ -36,7 +36,7 @@ func newHub() *hub {
 }
 
 // run method for hub type
-func (h *hub) run() {
+func (h *Hub) run() {
   for {
     select {
     case c := <-h.register:
@@ -63,7 +63,7 @@ func (h *hub) run() {
 }
 
 // function to allocate new connection id
-func (h *hub) getNextId() int {
+func (h *Hub) getNextId() int {
 
   ids := make(map[int]bool)
 
@@ -82,7 +82,7 @@ func (h *hub) getNextId() int {
 }
 
 // function to deallocate connection_id
-func (h *hub) deleteId(id int) {
+func (h *Hub) deleteId(id int) {
 
   index := -1
   // find index of id
@@ -99,6 +99,6 @@ func (h *hub) deleteId(id int) {
   h.connectionIds = append(h.connectionIds[:index], h.connectionIds[index + 1:]...)
 }
 
-func (h *hub) updateState(sessionId int, newState[]byte) {
+func (h *Hub) updateState(sessionId int, newState[]byte) {
   h.state[sessionId] = newState
 }

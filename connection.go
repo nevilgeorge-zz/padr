@@ -7,7 +7,7 @@ import (
   "net/http"
 )
 
-type connection struct {
+type Connection struct {
   // WebSocket connection
   ws *websocket.Conn
 
@@ -15,7 +15,7 @@ type connection struct {
   send chan []byte
 
   // Hub connected to
-  h *hub
+  h *Hub
 
   // Assigned id
   id int
@@ -24,33 +24,33 @@ type connection struct {
   sessionId int
 }
 
-type message struct {
+type Message struct {
   // Text of string being sent
   text []byte
 
   // Connection that is sending the message
-  sender *connection
+  sender *Connection
 }
 
 // reader method of connection type
-func (c *connection) reader() {
+func (c *Connection) reader() {
   for {
     _, msg, err := c.ws.ReadMessage()
 
-    new_message := &message{text: msg, sender: c}
+    newMessage := &Message{text: msg, sender: c}
 
     if err != nil {
       fmt.Println(err)
       fmt.Println("Reading from connection failed.")
       break
     }
-    c.h.broadcast <- new_message
+    c.h.broadcast <- newMessage
   }
   c.ws.Close()
 }
 
-// writer method of connection type
-func (c *connection) writer() {
+// writer method of Connection type
+func (c *Connection) writer() {
   for message := range c.send {
     err := c.ws.WriteMessage(websocket.TextMessage, message)
     if err != nil {
@@ -64,7 +64,7 @@ func (c *connection) writer() {
 var upgrader = &websocket.Upgrader{ReadBufferSize: 1024, WriteBufferSize: 1024}
 
 type wsHandler struct {
-  h *hub
+  h *Hub
 }
 
 // method of wsHandler type
@@ -75,7 +75,7 @@ func (wsh wsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
   }
 
   fmt.Println("Adding new connection")
-  c := &connection{
+  c := &Connection{
     send: make(chan []byte, 256),
     ws: ws,
     h: wsh.h,
