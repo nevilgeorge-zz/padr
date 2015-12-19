@@ -1,11 +1,12 @@
 // editor.js
 $(function() {
   $(document).ready(function() {
+    var domain = window.tempVars.Domain;
+    var shortCode = window.tempVars.ShortCode;
     var conn;
 
     if (window['WebSocket']) {
-      var domain = document.domain;
-      conn = new WebSocket('ws://' + domain + ':8080/ws');
+      conn = new WebSocket('ws://' + domain + '/' + shortCode + '/ws');
       console.log('Connected to websocket!');
     } else {
       alert('Your browser does not support WebSockets.');

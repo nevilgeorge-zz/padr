@@ -19,6 +19,9 @@ type Hub struct {
 
   // map that holds state for each session
   state map[int][]byte
+
+  // shortcode associated with this hub
+  shortCode string
 }
 
 // constructor for hub struct
@@ -30,6 +33,7 @@ func newHub() *Hub {
     unregister: make(chan *Connection),
     connectionIds: make([]int, 0),
     state: make(map[int][]byte),
+    shortCode: "",
   }
 
   return &hub
