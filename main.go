@@ -83,6 +83,11 @@ func main() {
 
       // handle socket connections at this new endpoint
       http.Handle("/" + newCode + "/ws", ws)
+
+      _, err := res.Write([]byte(newCode))
+      if err != nil {
+        log.Fatal("POST response failed", err)
+      }
     },
   }
 

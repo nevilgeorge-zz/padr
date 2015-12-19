@@ -24,7 +24,7 @@ blockquote {
   outline: none;
   width: 90%;
   height: 80%;
-  background-color: #ffffb2;
+  background-color: #ffffe0;
   margin-left: auto;
   margin-right: auto;
   margin-top: 5%;
@@ -35,4 +35,12 @@ blockquote {
 
 .home-body {
   background-color: #cde7f0
+}
+
+.editor-body {
+  background-color: #cde7f0
+}
+
+.home-button {
+  color: #df0d32;
 }
