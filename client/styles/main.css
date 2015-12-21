@@ -20,7 +20,7 @@ blockquote {
     color: #555;
 }
 
-.editable {
+#editor {
   outline: none;
   width: 90%;
   height: 80%;
