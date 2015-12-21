@@ -17,8 +17,8 @@ type Hub struct {
   // list of assigned ids
   connectionIds []int
 
-  // map that holds state for each session
-  state map[int][]byte
+  // map that holds state for current session
+  state []byte
 
   // shortcode associated with this hub
   shortCode string
@@ -32,7 +32,7 @@ func newHub() *Hub {
     register: make(chan *Connection),
     unregister: make(chan *Connection),
     connectionIds: make([]int, 0),
-    state: make(map[int][]byte),
+    state: make([]byte, 0),
     shortCode: "",
   }
 
@@ -44,9 +44,9 @@ func (h *Hub) run() {
   for {
     select {
     case c := <-h.register:
-      h.connections[c] = true
       c.id = h.getNextId()
-      c.send <- h.state[c.sessionId]
+      h.connections[c] = true
+      c.send <- h.state
 
     case c := <-h.unregister:
       if _, ok := h.connections[c]; ok {
@@ -56,7 +56,7 @@ func (h *Hub) run() {
       }
 
     case m := <-h.broadcast:
-      h.updateState(m.sender.sessionId, m.text)
+      h.updateState(m.text)
       for c := range h.connections {
         if c.id != m.sender.id {
           c.send <- m.text
@@ -103,6 +103,6 @@ func (h *Hub) deleteId(id int) {
   h.connectionIds = append(h.connectionIds[:index], h.connectionIds[index + 1:]...)
 }
 
-func (h *Hub) updateState(sessionId int, newState[]byte) {
-  h.state[sessionId] = newState
+func (h *Hub) updateState(newState[]byte) {
+  h.state = newState
 }
