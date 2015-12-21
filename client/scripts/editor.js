@@ -15,9 +15,9 @@ $(function() {
     $('#editor').text('');
     var quill = new Quill('#editor');
 
-    $('#editor').on('input', function() {
+    quill.on('text-change', function(delta, source) {
       var html = quill.getHTML();
-      if (typeof conn !== 'undefined' && html !== '') {
+      if (source === 'user' && typeof conn !== 'undefined' && html !== '') {
         conn.send(html);
       }
       return false;
