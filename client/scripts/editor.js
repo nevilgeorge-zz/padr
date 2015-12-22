@@ -25,7 +25,9 @@ $(function() {
 
     if (typeof conn !== 'undefined') {
       conn.onmessage = function(msg) {
+        var range = quill.getSelection();
         quill.setHTML(msg.data);
+        quill.setSelection(range);
       };
     }
   });

@@ -6,7 +6,6 @@ $(function() {
         url: '/session',
         method: 'POST'
       }).done(function(data) {
-        console.log(data);
         window.location.replace('/' + data);
       })
     });
