@@ -2,6 +2,7 @@
 package main
 
 import (
+  "encoding/json"
   "fmt"
   "github.com/gorilla/websocket"
   "net/http"
@@ -24,9 +25,18 @@ type Connection struct {
   sessionId int
 }
 
-type Message struct {
-  // Text of string being sent
-  text []byte
+type Operation struct {
+  // start index of operation
+  start float64
+
+  // count of characters affected
+  count float64
+
+  // characters added/ [] for deletion
+  chars string
+
+  // type of operation (ie. input/delete)
+  opType string
 
   // Connection that is sending the message
   sender *Connection
@@ -37,14 +47,29 @@ func (c *Connection) reader() {
   for {
     _, msg, err := c.ws.ReadMessage()
 
-    newMessage := &Message{text: msg, sender: c}
-
     if err != nil {
       fmt.Println(err)
       fmt.Println("Reading from connection failed.")
       break
     }
-    c.h.broadcast <- newMessage
+
+    var operation map[string]interface{}
+    if err := json.Unmarshal(msg, &operation); err != nil {
+      fmt.Println(err)
+      continue
+    }
+
+    // create new operation using type assertion
+    op := &Operation{
+      start: operation["start"].(float64),
+      count: operation["count"].(float64),
+      chars: operation["chars"].(string),
+      opType: operation["type"].(string),
+      sender: c,
+    }
+
+    c.h.broadcast <- op
+
   }
   c.ws.Close()
 }
