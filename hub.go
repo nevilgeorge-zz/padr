@@ -1,8 +1,6 @@
 // hub.go
 package main
 
-import "fmt"
-
 type Hub struct {
   // Registered connections
   connections map[*Connection]bool
@@ -109,6 +107,7 @@ func (h *Hub) mergeOperation(op *Operation) {
   state := h.state
   start := int(op.start)
   addition := []byte(op.chars)
+  count := int(op.count)
 
   switch op.opType {
   case "insert":
@@ -118,7 +117,11 @@ func (h *Hub) mergeOperation(op *Operation) {
       state = append(state[0:start], append(addition, state[start:]...)...)
     }
   case "delete":
-    fmt.Println("delete")
+    if start == len(state) {
+      state = state[0:start - 1]
+    } else {
+      state = append(state[0: start], state[start + count:]...)
+    }
   }
 
   h.state = state
