@@ -25,8 +25,7 @@ $(function() {
     var quill = new Quill('#editor');
 
     quill.on('text-change', function(delta, source) {
-      var op, action, start;
-
+      var op, action, start, chars;
       if (delta.ops.length == 1) {
         action = delta.ops[0]
         if ('insert' in action) {
@@ -35,10 +34,11 @@ $(function() {
           op = new Operation(0, action.delete, '', 'delete');
         }
       } else {
-        start = delta.ops[0].retain;
+        start = delta.ops[0].retain || 0;
         action = delta.ops[1];
+        chars = action.insert;
         if ('insert' in action) {
-          op = new Operation(start, action.insert.length, action.insert, 'insert');
+          op = new Operation(start, action.insert.length, chars, 'insert');
         } else if ('delete' in action) {
           op = new Operation(start, action.delete, '', 'delete');
         }
@@ -53,7 +53,7 @@ $(function() {
     if (typeof conn !== 'undefined') {
       conn.onmessage = function(msg) {
         var range = quill.getSelection();
-        quill.setHTML(msg.data);
+        quill.setText(msg.data);
         quill.setSelection(range);
       };
     }
