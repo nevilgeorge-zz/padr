@@ -6,6 +6,7 @@ var Operation = function(start, count, chars, type) {
   this.count = count;
   this.chars = chars;
   this.type = type;
+  this.range = {};
 }
 
 $(function() {
@@ -43,7 +44,7 @@ $(function() {
           op = new Operation(start, action.delete, '', 'delete');
         }
       }
-      console.log(op)
+      op.range = quill.getSelection();
 
       if (source === 'user' && typeof conn !== 'undefined' && typeof op !== 'undefined') {
         conn.send(JSON.stringify(op));
@@ -53,7 +54,10 @@ $(function() {
     if (typeof conn !== 'undefined') {
       conn.onmessage = function(msg) {
         var range = quill.getSelection();
-        quill.setText(msg.data);
+        if (msg.data !== '') {
+          var data = JSON.parse(msg.data);
+          quill.setText(data.Text);
+        }
         quill.setSelection(range);
       };
     }

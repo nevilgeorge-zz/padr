@@ -38,6 +38,9 @@ type Operation struct {
   // type of operation (ie. input/delete)
   opType string
 
+  // selection range with start and end keys
+  selectionRange map[string]float64
+
   // Connection that is sending the message
   sender *Connection
 }
@@ -59,12 +62,15 @@ func (c *Connection) reader() {
       continue
     }
 
+    selectionRange := operation["range"].(map[string]interface{})
+
     // create new operation using type assertion
     op := &Operation{
       start: operation["start"].(float64),
       count: operation["count"].(float64),
       chars: operation["chars"].(string),
       opType: operation["type"].(string),
+      selectionRange: map[string]float64{"start": selectionRange["start"].(float64), "end": selectionRange["end"].(float64)},
       sender: c,
     }
 

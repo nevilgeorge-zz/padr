@@ -1,6 +1,11 @@
 // hub.go
 package main
 
+import (
+  "encoding/json"
+  "fmt"
+)
+
 type Hub struct {
   // Registered connections
   connections map[*Connection]bool
@@ -22,6 +27,14 @@ type Hub struct {
 
   // shortcode associated with this hub
   shortCode string
+
+  // keep track of cursors
+  cursors map[*Connection]map[string]float64
+}
+
+type SocketUpdate struct {
+  Text string
+  Cursors [][]float64
 }
 
 // constructor for hub struct
@@ -34,6 +47,7 @@ func newHub() *Hub {
     connectionIds: make([]int, 0),
     state: make([]byte, 0),
     shortCode: "",
+    cursors: make(map[*Connection]map[string]float64),
   }
 
   return &hub
@@ -46,20 +60,24 @@ func (h *Hub) run() {
     case c := <-h.register:
       c.id = h.getNextId()
       h.connections[c] = true
-      c.send <- h.state
+      h.cursors[c] = map[string]float64{"start": 0, "end": 0}
+      c.send <- h.getSocketUpdate()
 
     case c := <-h.unregister:
       if _, ok := h.connections[c]; ok {
         h.deleteId(c.id)
         delete(h.connections, c)
+        delete(h.cursors, c)
         close(c.send)
       }
 
     case op := <-h.broadcast:
       h.mergeOperation(op)
+      h.cursors[op.sender] = op.selectionRange
+
       for c := range h.connections {
         if c.id != op.sender.id {
-          c.send <- h.state
+          c.send <- h.getSocketUpdate()
         }
       }
     }
@@ -125,4 +143,26 @@ func (h *Hub) mergeOperation(op *Operation) {
   }
 
   h.state = state
+}
+
+func (h *Hub) getSocketUpdate() []byte {
+      ranges := make([][]float64, len(h.cursors))
+      for _, val := range h.cursors {
+        ranges = append(ranges, []float64{val["start"], val["end"]})
+      }
+      update := &SocketUpdate{
+        Text: string(h.state),
+        Cursors: ranges,
+      }
+      b := convertToBytes(update)
+      return b
+}
+
+func convertToBytes(update *SocketUpdate) []byte {
+  converted, err := json.Marshal(update)
+  if err != nil {
+    fmt.Println(err)
+    return nil
+  }
+  return converted
 }
