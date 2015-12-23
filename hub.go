@@ -146,7 +146,7 @@ func (h *Hub) mergeOperation(op *Operation) {
 }
 
 func (h *Hub) getSocketUpdate() []byte {
-      ranges := make([][]float64, len(h.cursors))
+      ranges := make([][]float64, 0)
       for _, val := range h.cursors {
         ranges = append(ranges, []float64{val["start"], val["end"]})
       }
